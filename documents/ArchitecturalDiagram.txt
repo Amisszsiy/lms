@@ -1,0 +1,61 @@
+                               +-----------+
+                               |  Browser  |
+                               +-----+-----+
+                                     |
+                                     v
++----------------------------------------------------------------------------+
+|  lms-client   Angular 21 + Material, SSR (Node/Express)    :4200 / :4000   |
+|                                                                            |
+|  Pages       login, register, dashboard, book-search, borrow-history,      |
+|              book-management, book-inventory, borrowing-management         |
+|  Guards      authGuard | noAuthGuard | adminGuard                          |
+|  Services    auth, book, book-copy, borrowing, lookup, user                |
+|  Interceptor authInterceptor (withCredentials on every request)            |
++------------------------------------+---------------------------------------+
+                                     |
+                                     |  HTTPS  REST / JSON
+                                     |  JWT in HttpOnly Secure cookie
+                                     v
++----------------------------------------------------------------------------+
+|  lms-api   ASP.NET Core 8  (Clean Architecture)            :7016 / :5226   |
+|                                                                            |
+|  +----------------------------------------------------------------------+  |
+|  | WebAPI                                                               |  |
+|  |  Controllers  Auth, Book, BookCopy, Borrow, Author, Genre,           |  |
+|  |               Location, Publisher, User                              |  |
+|  |  Cross-cut    GlobalExceptionMiddleware, JWT auth, CORS,             |  |
+|  |               Serilog, Swagger                                       |  |
+|  |  Services     TokenService, CurrentUserService                       |  |
+|  +----------------+-------------------------------------+---------------+  |
+|                   |                                     |                  |
+|                   v                                     v                  |
+|  +----------------------------------+   +-------------------------------+  |
+|  | Application                      |   | Infrastructure                |  |
+|  |  Features/*   Services, DTOs,    |<--|  LibraryDbContext (EF Core)   |  |
+|  |               Validators,        |   |  Configurations, Migrations   |  |
+|  |               AutoMapper profiles|   |  Repositories (implement      |  |
+|  |  Persistance  IRepository<T> ... |   |    Application interfaces)    |  |
+|  |  Services     ITokenService,     |   |  LibraryDbSeeder (Dev only)   |  |
+|  |               ICurrentUserService|   |  Audit fields on SaveChanges  |  |
+|  +----------------+-----------------+   +---------------+---------------+  |
+|                   |                                     |                  |
+|                   v                                     |                  |
+|  +----------------------------------+                   |                  |
+|  | Domain  (no framework deps)      |                   |                  |
+|  |  Entities     Book, BookCopy,    |                   |                  |
+|  |               Borrowing, User... |                   |                  |
+|  |  ValueObjects Isbn, EmailAddress,|                   |                  |
+|  |               Address            |                   |                  |
+|  |  Common       Result / Error     |                   |                  |
+|  +----------------------------------+                   |                  |
++---------------------------------------------------------+------------------+
+                                                          |
+                                                          |  TDS :1433
+                                                          v
+                                          +-------------------------------+
+                                          |  SQL Server 2025 (Docker)     |
+                                          |  database: LMS                |
+                                          |  volume:   mssql_data         |
+                                          +-------------------------------+
+
+  Arrows between layers = compile-time dependency direction.
