@@ -1,0 +1,5 @@
+<div class="welcome-container">
+    @if (currentUser(); as user) {
+        <h1>Welcome {{ user.firstName }} {{ user.lastName }}</h1>
+    }
+</div>

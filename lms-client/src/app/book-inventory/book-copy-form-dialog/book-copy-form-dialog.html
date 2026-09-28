@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>
+    @if (isEdit) {
+        Edit Copy
+    } @else {
+        Add Copy
+    }
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Book</mat-label>
+            <input matInput placeholder="Type title or ISBN" formControlName="book" [matAutocomplete]="bookAuto" />
+            <mat-autocomplete #bookAuto="matAutocomplete" [displayWith]="displayBook">
+                @for (book of bookOptions(); track book.id) {
+                    <mat-option [value]="book">{{ book.title }} ({{ book.isbn }})</mat-option>
+                }
+            </mat-autocomplete>
+            <mat-error>Pick a book from the list</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Location</mat-label>
+            <input matInput placeholder="e.g. A-1-2" formControlName="location" [matAutocomplete]="locationAuto" />
+            <mat-autocomplete #locationAuto="matAutocomplete" [displayWith]="displayLocation">
+                @for (location of locationOptions(); track location.id) {
+                    <mat-option [value]="location">
+                        Area {{ location.area }} / Line {{ location.lineNo }} / Shelf {{ location.shelfNo }} /
+                        Row {{ location.rowNo }} / Col {{ location.columnNo }}
+                    </mat-option>
+                }
+            </mat-autocomplete>
+            <mat-hint>Format: Area-Line-Shelf Row Column</mat-hint>
+            <mat-error>Pick a location from the list</mat-error>
+        </mat-form-field>
+
+        <!-- Status is only part of the update request. A new copy always starts as Available. -->
+        @if (isEdit) {
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status">
+                    @for (status of statusOptions; track status) {
+                        <mat-option [value]="status">{{ getStatusLabel(status) }}</mat-option>
+                    }
+                </mat-select>
+                @if (statusOptions.length === 1) {
+                    <mat-hint>Status can't be changed from here</mat-hint>
+                }
+            </mat-form-field>
+        }
+
+        @if (errorMessage()) {
+            <div class="error-banner">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ errorMessage() }}</span>
+            </div>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button type="button" mat-dialog-close>Cancel</button>
+        <button mat-flat-button type="submit" [disabled]="saving()">Save</button>
+    </mat-dialog-actions>
+</form>

@@ -1,0 +1,25 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+mat-card {
+    width: 100%;
+    max-width: 400px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.login-button {
+  width: 100%;
+}
+
+.register-link {
+  text-align: right;
+  margin: 8px 0 0;
+}

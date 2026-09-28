@@ -1,0 +1,28 @@
+<mat-toolbar color="primary">
+    <span class="app-title">Library</span>
+
+    <a mat-button routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+
+    @if (isAdmin()) {
+        <a mat-button routerLink="/admin/books" routerLinkActive="active-link">Books</a>
+        <a mat-button routerLink="/admin/inventory" routerLinkActive="active-link">Inventory</a>
+        <a mat-button routerLink="/admin/borrowings" routerLinkActive="active-link">Borrowings</a>
+    } @else {
+        <a mat-button routerLink="/books" routerLinkActive="active-link">Book Search</a>
+        <a mat-button routerLink="/my-borrowings" routerLinkActive="active-link">Borrow History</a>
+    }
+
+    <span class="spacer"></span>
+
+    @if (currentUser(); as user) {
+        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+    }
+    <button mat-button (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Logout
+    </button>
+</mat-toolbar>
+
+<main class="page-content">
+    <router-outlet></router-outlet>
+</main>

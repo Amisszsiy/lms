@@ -1,0 +1,53 @@
+<h2 mat-dialog-title>Assign Book</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Borrower</mat-label>
+            <input matInput placeholder="Type name or exact email" formControlName="user" [matAutocomplete]="userAuto" />
+            <mat-autocomplete #userAuto="matAutocomplete" [displayWith]="displayUser">
+                @for (user of userOptions(); track user.id) {
+                    <mat-option [value]="user">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</mat-option>
+                }
+            </mat-autocomplete>
+            <mat-error>Pick a borrower from the list</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Book</mat-label>
+            <input matInput placeholder="Type title or ISBN" formControlName="book" [matAutocomplete]="bookAuto" />
+            <mat-autocomplete #bookAuto="matAutocomplete" [displayWith]="displayBook" (optionSelected)="onBookSelected($event)">
+                @for (book of bookOptions(); track book.id) {
+                    <!-- A book without an available copy can't be assigned. -->
+                    <mat-option [value]="book" [disabled]="book.availableCopyCount === 0">
+                        {{ book.title }} ({{ book.isbn }}) - {{ book.availableCopyCount }} available
+                    </mat-option>
+                }
+            </mat-autocomplete>
+            <mat-error>Pick a book from the list</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Book Copy</mat-label>
+            <mat-select formControlName="bookCopyId">
+                @for (copy of copyOptions(); track copy.id) {
+                    <mat-option [value]="copy.id">{{ copy.id }}</mat-option>
+                }
+            </mat-select>
+            <mat-hint>Available copies of the chosen book</mat-hint>
+            <mat-error>Book copy is required</mat-error>
+        </mat-form-field>
+
+        @if (errorMessage()) {
+            <div class="error-banner">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ errorMessage() }}</span>
+            </div>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button type="button" mat-dialog-close>Cancel</button>
+        <button mat-flat-button type="submit" [disabled]="saving()">Assign</button>
+    </mat-dialog-actions>
+</form>

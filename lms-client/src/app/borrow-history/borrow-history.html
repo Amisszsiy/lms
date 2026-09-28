@@ -1,0 +1,84 @@
+<div class="page-header">
+    <h2>Borrow History</h2>
+</div>
+
+<div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search title or ISBN</mat-label>
+        <input matInput [(ngModel)]="search" (keyup.enter)="onSearch()" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="status" (selectionChange)="onSearch()">
+            <mat-option [value]="null">All</mat-option>
+            @for (option of statusOptions; track option) {
+                <mat-option [value]="option">{{ getStatusLabel(option) }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button (click)="onSearch()">
+        <mat-icon>search</mat-icon>
+        Search
+    </button>
+</div>
+
+@if (errorMessage()) {
+    <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage() }}</span>
+    </div>
+}
+
+<table mat-table [dataSource]="borrowings()" class="mat-elevation-z1">
+    <ng-container matColumnDef="book">
+        <th mat-header-cell *matHeaderCellDef>Book</th>
+        <td mat-cell *matCellDef="let borrowing">
+            {{ borrowing.book.title }}
+            <div class="sub-text">{{ borrowing.book.isbn }}</div>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="borrowDate">
+        <th mat-header-cell *matHeaderCellDef>Borrow Date</th>
+        <td mat-cell *matCellDef="let borrowing">{{ borrowing.borrowDate | date: 'mediumDate' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let borrowing">{{ borrowing.dueDate | date: 'mediumDate' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="returnDate">
+        <th mat-header-cell *matHeaderCellDef>Return Date</th>
+        <td mat-cell *matCellDef="let borrowing">{{ borrowing.returnDate | date: 'mediumDate' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let borrowing">{{ getStatusLabel(borrowing.status) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let borrowing" class="actions-cell">
+            <button mat-stroked-button [disabled]="!canRequestReturn(borrowing)" (click)="requestReturn(borrowing)">
+                {{ getRequestReturnButtonText(borrowing) }}
+            </button>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">No borrowings found</td>
+    </tr>
+</table>
+
+<mat-paginator
+    [length]="totalCount()"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 20, 50]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons
+></mat-paginator>

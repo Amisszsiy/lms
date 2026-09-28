@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>
+    @if (isEdit) {
+        Edit Book
+    } @else {
+        Add Book
+    }
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>ISBN</mat-label>
+            <input matInput formControlName="isbn" />
+            <mat-error>ISBN is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Title</mat-label>
+            <input matInput formControlName="title" />
+            <mat-error>Title is required (max 200 characters)</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Publisher</mat-label>
+            <mat-select formControlName="publisherId">
+                @for (publisher of data.publishers; track publisher.id) {
+                    <mat-option [value]="publisher.id">{{ publisher.name }}</mat-option>
+                }
+            </mat-select>
+            <mat-error>Publisher is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Publication Year</mat-label>
+            <input matInput type="number" formControlName="publicationYear" />
+            <mat-error>Year must be between 1 and {{ currentYear }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Authors</mat-label>
+            <mat-select formControlName="authorIds" multiple>
+                @for (author of data.authors; track author.id) {
+                    <mat-option [value]="author.id">
+                        {{ author.firstName }} {{ author.lastName }}
+                        @if (author.penNames.length > 0) {
+                            ({{ author.penNames.join(', ') }})
+                        }
+                    </mat-option>
+                }
+            </mat-select>
+            <mat-error>At least one author is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Genres</mat-label>
+            <mat-select formControlName="genreIds" multiple>
+                @for (genre of data.genres; track genre.id) {
+                    <mat-option [value]="genre.id">{{ genre.genreName }}</mat-option>
+                }
+            </mat-select>
+            <mat-error>At least one genre is required</mat-error>
+        </mat-form-field>
+
+        @if (errorMessage()) {
+            <div class="error-banner">
+                <mat-icon>error_outline</mat-icon>
+                <span>{{ errorMessage() }}</span>
+            </div>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button type="button" mat-dialog-close>Cancel</button>
+        <button mat-flat-button type="submit" [disabled]="saving()">Save</button>
+    </mat-dialog-actions>
+</form>

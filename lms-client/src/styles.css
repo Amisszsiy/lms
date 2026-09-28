@@ -1,0 +1,51 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Shared by every screen: title on the left, main button on the right. */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.search-field {
+    width: 100%;
+    max-width: 400px;
+}
+
+.actions-cell {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.actions-cell button + button {
+    margin-left: 8px;
+}
+
+.no-data {
+    padding: 16px;
+    text-align: center;
+}
+
+.sub-text {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+}
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin: 8px 0 16px;
+    border-radius: 4px;
+    background-color: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+}

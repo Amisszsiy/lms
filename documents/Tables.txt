@@ -1,0 +1,108 @@
+Publisher:
+Id int PK,
+Name nvarchar(200) not null,
+Building varchar(100),
+Street varchar(100),
+City varchar(100),
+State varchar(100),
+ZipCode varchar(10),
+Country varchar(50),
+Tel varchar(15)
+
+Author:
+Id int PK,
+FirstName nvarchar(100) not null,
+LastName nvarchar(100) null
+//Index FirstName and LastName
+
+PenName:
+Id int PK,
+Name nvarchar(100) not null,
+AuthorId int FK(Author(Id)) not null
+// Author may have several pen name
+
+Genre:
+Id int PK,
+GenreName varchar(100) not null unique
+
+Location:
+Id int PK,
+Area varchar(50) not null,
+LineNo varchar(10) not null,
+ShelfNo varchar(10) not null,
+RowNo int not null,
+ColumnNo int not null
+// Constraint unique(Area, LineNo, ShelfNo, RowNo, ColumnNo)
+
+Book:
+Id long PK,
+ISBN char(13) not null unique,
+Title nvarchar(200) not null,
+PublisherId int FK(Publisher(Id)) not null,
+PublicationYear smallint not null,
+IsActive bit not null
+// Index for title
+
+BookAuthor:
+Id int PK,
+BookId long FK(Book(Id)) not null,
+AuthorId int FK(Author(Id)) not null
+// Index BookId and AuthorId and unique
+// If set in active all copy set to withdrawn
+
+BookGenre:
+Id int PK,
+BookId long FK(Book(Id)) not null,
+GenreId int FK(Genre(Id)) not null
+// One book may have several genres
+// Index BookId and GenreId and unique
+
+Role:
+Id int PK,
+RoleName varchar(20) not null unique
+
+UserRole:
+Id int PK,
+UserId Guid FK(User(Id)) not null,
+RoleId int FK(Role(Id)) not null
+// User can have several roles
+// unique for UserId and RoleId
+
+User:
+Id Guid PK,
+FirstName nvarchar(100) not null,
+LastName nvarchar(100) not null,
+Email varchar(254) not null unique,
+Tel varchar(15) null,
+IsActive bit not null
+
+UserCredential:
+Id Guid PK,
+UserId Guid FK(User(Id)) not null unique,
+Username varchar(100) not null unique,
+PasswordHash varchar(200) not null
+
+BookCopy:
+Id Guid PK,
+BookId long FK(Book(Id)) not null,
+LocationId int FK(Location(Id)) not null,
+AvailableStatus int not null,
+RowVersion rowversion not null
+// Status map with enum in back end 1.Available 2.Borrowed 3.Damaged 4.Lost 5.Withdrawn 6.IssueReturn
+// Cycle: Available -> Borrowed -> IssueReturn (user requests return) -> Available (admin processes return)
+// Index BookId
+// race condition when inserting BorrowTransaction handled by RowVersion (optimistic)
+
+Borrowing:
+Id Guid PK,
+UserId Guid FK(User(Id)) not null,
+BookCopyId Guid FK(BookCopy(Id)) not null,
+BorrowDate DateTime2 not null,
+ReturnDate DateTime2,
+DueDate DateTime2 not null
+// Index UserId and BorrowDate
+// Index BookCopyId
+// Final safety net for preventing borrow same bookcopy at the same time
+// CREATE UNIQUE INDEX UX_BorrowTransaction_OpenLoan ON BorrowTransaction(BookCopyId) WHERE ReturnDate IS NULL
+
+//All tables except User and UserCredential will have thier CreatedBy Guid FK(User(Id)), CreatedDate DateTime2, ModifiedBy Guid FK(User(Id)), ModifiedDate DateTime2
